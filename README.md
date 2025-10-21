@@ -37,3 +37,10 @@ explaining the code in test_hands.py
 	4.	Draw landmarks on the frame.
 	5.	Display in a window.
 	6.	Exit when you press q.
+
+
+test_hands.py
+Map hand landmarks to simple gestures
+Now that Mediapipe can detect hands, we’ll turn the hand positions into a basic “gesture” that the program can recognize. For starters, let’s detect if the user’s hand is open or closed (fist vs. open palm) using the distance between the tip of the index finger and the wrist.
+
+
