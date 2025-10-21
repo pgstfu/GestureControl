@@ -43,4 +43,10 @@ test_hands.py
 Map hand landmarks to simple gestures
 Now that Mediapipe can detect hands, we’ll turn the hand positions into a basic “gesture” that the program can recognize. For starters, let’s detect if the user’s hand is open or closed (fist vs. open palm) using the distance between the tip of the index finger and the wrist.
 
+gesture_canvas.py
+Step 8 — Draw generative art based on gestures
+Now we’ll connect gestures to drawing on a canvas. For this step, we’ll create a blank canvas and make it draw a circle when your hand is open and erase when it’s a fist.
+
+changed the fist distance for .25 as even a little bit difference in fingers make it erase
+
 
