@@ -71,3 +71,6 @@ The new code gets two stick figures on screen and then moves with your hand basi
 	2.	Open your hand and swipe → it walks left/right along the floor.
 	3.	Keep your hand open but still → it waves gently.
 	4.	Press Q to quit.
+
+The holo_face makes the hologram of your face using landmarks as points and then joins them 
+
