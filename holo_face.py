@@ -20,6 +20,9 @@ def rotate_point(x, y, angle_deg, cx, cy):
     yr = x * math.sin(rad) + y * math.cos(rad)
     return xr + cx, yr + cy
 
+# Store previous fingertip positions for trail effect
+trail_canvas = np.zeros((FRAME_H, FRAME_W, 3), dtype=np.float32)
+
 with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=False) as face_mesh, \
      mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7) as hands:
 
@@ -28,6 +31,8 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=False) as face_mesh
     morph_factor = 0.0
     t0 = time.time()
 
+    prev_positions = {}
+    angle_min, angle_max = 180.0, 0.0
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -40,8 +45,9 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=False) as face_mesh
         hand_res = hands.process(rgb)
 
         hologram = np.zeros_like(frame)
+        glow_canvas = np.zeros_like(frame, dtype=np.float32)
 
-        # --- Hand fingertip control ---
+        # --- Hand fingertip control + trails ---
         if hand_res.multi_hand_landmarks:
             hand = hand_res.multi_hand_landmarks[0]
             pts = hand.landmark
@@ -56,21 +62,44 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=False) as face_mesh
             zoom = np.clip(1.2 + (0.15 - pinch) * 5.0, 0.6, 1.6)
 
             # 2. Index finger horizontal → rotation
-            rotation_angle = (index_tip.x - 0.5) * 120  # rotate ±60°
+            rotation_angle = (index_tip.x - 0.5) * 120
 
-            # 3. Middle finger bend → morph intensity
-            morph_factor = np.clip((middle_tip.y - wrist.y) * 2.5, 0.0, 1.0)
+            # 3. Middle finger bend → morph intensity (self-calibrating angle-based)
+            middle_knuckle = pts[9]
+            wrist_vec = np.array([wrist.x - middle_knuckle.x, wrist.y - middle_knuckle.y])
+            tip_vec   = np.array([middle_tip.x - middle_knuckle.x, middle_tip.y - middle_knuckle.y])
 
-            # Visualize fingertips
-            for tip in [thumb_tip, index_tip, middle_tip]:
+            dot = np.dot(wrist_vec, tip_vec)
+            norms = np.linalg.norm(wrist_vec) * np.linalg.norm(tip_vec) + 1e-6
+            cos_angle = np.clip(dot / norms, -1.0, 1.0)
+            angle = math.degrees(math.acos(cos_angle))
+
+            # --- dynamic calibration ---
+            angle_min = min(angle_min, angle)
+            angle_max = max(angle_max, angle)
+            angle_range = angle_max - angle_min + 1e-6
+
+            morph_factor = np.clip((angle - angle_min) / angle_range, 0.0, 1.0)
+
+            # Draw fingertip trails
+            tips = {'thumb': thumb_tip, 'index': index_tip, 'middle': middle_tip}
+            for name, tip in tips.items():
                 x, y = int(tip.x * FRAME_W), int(tip.y * FRAME_H)
-                cv2.circle(frame, (x, y), 8, (0, 255, 255), -1)
+                if name in prev_positions:
+                    px, py = prev_positions[name]
+                    speed = math.hypot(x - px, y - py)
+                    color = (100 + int(155 * min(speed, 1)), 255, 255 - int(150 * min(speed, 1)))
+                    cv2.line(trail_canvas, (px, py), (x, y), color, 3)
+                prev_positions[name] = (x, y)
+                cv2.circle(glow_canvas, (x, y), 8, (0, 255, 255), -1)
+
+        # Slowly fade old trails
+        trail_canvas *= 0.92  # fade factor
 
         # --- Face mesh & morph ---
         if face_res.multi_face_landmarks:
             face = face_res.multi_face_landmarks[0]
             pts = np.array([[p.x * FRAME_W, p.y * FRAME_H] for p in face.landmark], dtype=np.float32)
-
             cx, cy = np.mean(pts[:, 0]), np.mean(pts[:, 1])
             ripple = 6 * math.sin((time.time() - t0) * 3.0)
 
@@ -91,17 +120,14 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=False) as face_mesh
             for (x, y) in warped:
                 cv2.circle(hologram, (x, y), 1, (0, 255, 255), -1)
 
-        # --- Color + blend ---
-        rgb_glow = hologram.astype(np.float32)
-        rgb_glow[:, :, 0] *= 1.3
-        rgb_glow[:, :, 1] *= 1.8
-        rgb_glow[:, :, 2] *= 2.5
-        rgb_glow = np.clip(rgb_glow, 0, 255).astype(np.uint8)
+        # --- Combine hologram, glow, trails ---
+        total = hologram.astype(np.float32) + trail_canvas + glow_canvas
+        total = np.clip(total, 0, 255).astype(np.uint8)
 
-        blended = cv2.addWeighted(frame, 0.35, rgb_glow, 1.0, 0)
+        blended = cv2.addWeighted(frame, 0.35, total, 1.0, 0)
         cv2.putText(blended, f"Zoom:{zoom:.2f} Rot:{rotation_angle:.1f} Morph:{morph_factor:.2f}",
                     (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
-        cv2.imshow("Holographic Finger Interaction", blended)
+        cv2.imshow("Holographic Finger Trails", blended)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
