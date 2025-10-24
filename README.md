@@ -56,4 +56,9 @@ changed the fist distance for .25 as even a little bit difference in fingers mak
             cv2.imshow("Gesture Canvas", combined)```
 			This function controls the clearing on canvas when both hands come into role on canvas.
 
+The new code gets two stick figures on screen and then moves with your hand basically it is linked with your index finger landmark
 
+	•	Your hand controls a stick figure.
+	•	Open hand → waves 👋
+	•	Fist → jumps 🕺
+	•	Neutral → stands idle
