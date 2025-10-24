@@ -74,3 +74,7 @@ The new code gets two stick figures on screen and then moves with your hand basi
 
 The holo_face makes the hologram of your face using landmarks as points and then joins them 
 
+	•	Pinch your fingers → hologram smoothly zooms in/out.
+	•	Move index tip horizontally → hologram rotates.
+	•	Lift or bend middle finger → hologram morphs and ripples.
+	•	All gestures happen within a small area — you barely move your hand!
