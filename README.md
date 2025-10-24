@@ -49,4 +49,11 @@ Now we’ll connect gestures to drawing on a canvas. For this step, we’ll crea
 
 changed the fist distance for .25 as even a little bit difference in fingers make it erase
 
+```if hands_count == 2:
+                canvas = np.zeros_like(canvas)
+            # Show both webcam and canvas side by side
+            combined = cv2.hconcat([frame_resized, canvas])
+            cv2.imshow("Gesture Canvas", combined)```
+			This function controls the clearing on canvas when both hands come into role on canvas.
+
 
