@@ -62,3 +62,7 @@ The new code gets two stick figures on screen and then moves with your hand basi
 	•	Open hand → waves 👋
 	•	Fist → jumps 🕺
 	•	Neutral → stands idle
+
+	Now you can:
+	•	Wave / make a fist to animate your stick figure
+	•	Press Q anytime to close the window and stop the script safely

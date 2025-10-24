@@ -13,30 +13,27 @@ def draw_stick_figure(canvas, center, action="idle", color=(0, 255, 0), size=50,
     """Draw stick figure with simple animated actions."""
     x, y = center
     angle = 0
+
     # Action-based motion
     if action == "jump":
         y -= int(30 * abs(math.sin(t / 5)))
     elif action == "wave":
         angle = int(20 * math.sin(t / 4))
-    else:
-        angle = 0
 
     # Head
     cv2.circle(canvas, (x, y - size // 2), size // 3, color, 2)
     # Body
     cv2.line(canvas, (x, y - size // 6), (x, y + size // 2), color, 2)
-
-    # Arms (wave action: move right arm)
+    # Arms
     cv2.line(canvas, (x - size // 2, y), (x, y - angle), color, 2)
     cv2.line(canvas, (x, y - angle), (x + size // 2, y - angle), color, 2)
-
     # Legs
     cv2.line(canvas, (x, y + size // 2), (x - size // 3, y + size), color, 2)
     cv2.line(canvas, (x, y + size // 2), (x + size // 3, y + size), color, 2)
 
 def detect_hand_gesture(hand_landmarks):
-    """Return 'open', 'fist', or 'unknown' based on finger positions."""
-    finger_tips = [8, 12, 16, 20]  # index, middle, ring, pinky
+    """Return 'open', 'fist', or 'unknown'."""
+    finger_tips = [8, 12, 16, 20]
     finger_base = [5, 9, 13, 17]
 
     extended = 0
@@ -69,7 +66,7 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7) as hands:
             hand_landmarks = results.multi_hand_landmarks[0]
             mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-            # Gesture recognition
+            # Detect gesture
             gesture = detect_hand_gesture(hand_landmarks)
             if gesture == "open":
                 action = "wave"
@@ -78,12 +75,12 @@ with mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7) as hands:
             else:
                 action = "idle"
 
-            # Stick figure position (follow index)
-            index_tip = hand_landmarks.landmark[8]
-            x = int(index_tip.x * canvas.shape[1])
-            y = int(index_tip.y * canvas.shape[0])
+        # 🧩 Fixed position for the figure (bottom-right corner)
+        frame_h, frame_w = canvas.shape[:2]
+        stick_x = int(frame_w * 0.8)
+        stick_y = int(frame_h * 0.8)
 
-            draw_stick_figure(canvas, (x, y), action=action, t=t)
+        draw_stick_figure(canvas, (stick_x, stick_y), action=action, t=t)
 
         canvas_resized = cv2.resize(canvas, (frame.shape[1], frame.shape[0]))
         blended = cv2.addWeighted(frame, 0.6, canvas_resized, 1.0, 0)

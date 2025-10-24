@@ -39,6 +39,10 @@ with mp_hands.Hands(max_num_hands=2, min_detection_confidence=0.7) as hands:
         cv2.putText(frame, gesture_text, (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         cv2.imshow("Gesture Detection", frame)
 
+        canvas_resized = cv2.resize(canvas, (frame.shape[1], frame.shape[0]))
+        blended = cv2.addWeighted(frame, 0.6, canvas_resized, 1.0, 0)
+        cv2.imshow("Gesture Canvas", blended)
+        
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
