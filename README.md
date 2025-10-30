@@ -78,3 +78,10 @@ The holo_face makes the hologram of your face using landmarks as points and then
 	•	Move index tip horizontally → hologram rotates.
 	•	Lift or bend middle finger → hologram morphs and ripples.
 	•	All gestures happen within a small area — you barely move your hand!
+
+
+Now working properly-01_tracking_base.py
+Here’s a clean, tested base that:
+	•	keeps the mirror view for you but re-labels the hands correctly,
+	•	raises confidence thresholds once the model has latched on,
+	•	and shows clear text overlays for which parts are actually detected.
