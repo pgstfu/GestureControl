@@ -85,3 +85,9 @@ Here’s a clean, tested base that:
 	•	keeps the mirror view for you but re-labels the hands correctly,
 	•	raises confidence thresholds once the model has latched on,
 	•	and shows clear text overlays for which parts are actually detected.
+
+02_energy_pulse.py
+	•	Detects the thumb–index pinch gesture.
+	•	When detected, creates a new “pulse” (a ring with intensity = 1 and radius = 0).
+	•	Each frame expands radius → r += EXPAND_SPEED, fades intensity → intensity -= ….
+	•	Fades away naturally for a smooth holographic shockwave.
