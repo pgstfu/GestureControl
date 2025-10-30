@@ -97,3 +97,9 @@ Here’s a clean, tested base that:
 	•	They move randomly outward and fade over time.
 	•	A soft Gaussian blur creates a glowing energy trail.
 	•	It’s the visual foundation for dynamic holographic interactions.
+
+04_depth_grid.py
+	•	A static grid of dots is built over the screen.
+	•	When your hand approaches, grid points repel slightly from your fingertip.
+	•	The displacement fades smoothly (FADE = 0.9) for organic motion.
+	•	The grid then relaxes back when the hand moves away — creating that holographic wave-like feel.
