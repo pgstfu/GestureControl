@@ -91,3 +91,9 @@ Here’s a clean, tested base that:
 	•	When detected, creates a new “pulse” (a ring with intensity = 1 and radius = 0).
 	•	Each frame expands radius → r += EXPAND_SPEED, fades intensity → intensity -= ….
 	•	Fades away naturally for a smooth holographic shockwave.
+
+03_particle_field.py
+	•	Every frame, if your hand is visible, particles spawn at your index fingertip.
+	•	They move randomly outward and fade over time.
+	•	A soft Gaussian blur creates a glowing energy trail.
+	•	It’s the visual foundation for dynamic holographic interactions.
